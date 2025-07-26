@@ -31,15 +31,15 @@ func main() {
 	for _, enum := range enums {
 		err = enum.Generate()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf(":: go-enum-generate: [ERROR] failed to generate enum %s\n", enum.Name)
 			continue
 		}
 		err = enum.CreateEnumFile(*isOverwrite)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf(":: go-enum-generate: [ERROR] failed to writing file for enum %s\n", enum.Name)
 			continue
 		}
 	}
 	
-	fmt.Println("Enums generated")
+	fmt.Println(":: go-enum-generate: [INFO] enum files generation ended successfully")
 }

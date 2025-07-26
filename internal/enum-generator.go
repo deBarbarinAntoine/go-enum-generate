@@ -32,7 +32,7 @@ func (enum *Enum) Generate() error {
 	}
 	
 	if enum.Name == enum.Plural {
-		return fmt.Errorf("enum name and plural are equals: %s = %s", enum.Name, enum.Plural)
+		return fmt.Errorf(":: go-enum-generate: [ERROR] enum name and plural are equals: %s = %s", enum.Name, enum.Plural)
 	}
 	
 	enum.EnumType = toPrivate(enum.Plural)
@@ -48,7 +48,7 @@ func (enum *Enum) Generate() error {
 	}
 	
 	if enum.EnumType == enum.EnumVar {
-		return fmt.Errorf("enum type and enum var are equals: %s = %s", enum.Name, enum.EnumVar)
+		return fmt.Errorf(":: go-enum-generate: [ERROR] enum type and enum var are equals: %s = %s", enum.Name, enum.EnumVar)
 	}
 	
 	for i, values := range enum.Values {
@@ -79,8 +79,10 @@ func GetEnums() ([]Enum, error) {
 	if !existsJSON && !existsYAML {
 		if checkEnumDirFiles() {
 			dirPath = "enum"
+			existsJSON = FileExists(JSONEnumFile)
+			existsYAML = FileExists(YAMLEnumFile)
 		} else {
-			return nil, fmt.Errorf("no enum definition file found (enums.json or enums.yaml)")
+			return nil, fmt.Errorf(":: go-enum-generate: [ERROR] no enum definition file found (enums.json or enums.yaml)")
 		}
 	}
 	
@@ -158,21 +160,28 @@ func (enum *Enum) CreateEnumFile(isOverwrite bool) error {
 	outputFile := filepath.Join("enum", toFilename(enum.Name))
 	
 	if FileExists(outputFile) && !isOverwrite {
-		return fmt.Errorf("skip: file already exists, use --force to overwrite: %s", outputFile)
+		return fmt.Errorf(":: go-enum-generate: [SKIP] file already exists, use --force to overwrite: %s", outputFile)
 	}
 	
-	return os.WriteFile(outputFile, buffer.Bytes(), 0644)
+	err = os.WriteFile(outputFile, buffer.Bytes(), 0644)
+	if err != nil {
+		return err
+	}
+	
+	fmt.Println(fmt.Sprintf(":: go-enum-generate: [INFO] file %s generated successfully", outputFile))
+	
+	return nil
 }
 
 func checkUniqueValues(enum *Enum) error {
 	var keys, values = make(map[string]struct{}), make(map[string]struct{})
 	for _, value := range enum.Values {
 		if _, ok := keys[value.Key]; ok {
-			return fmt.Errorf("duplicate values for key: %s", value.Key)
+			return fmt.Errorf(":: go-enum-generate: [ERROR] duplicate values for key: %s", value.Key)
 		}
 		keys[value.Key] = struct{}{}
 		if _, ok := values[value.Value]; ok {
-			return fmt.Errorf("duplicate values for value: %s", value.Value)
+			return fmt.Errorf(":: go-enum-generate: [ERROR] duplicate values for value: %s", value.Value)
 		}
 		values[value.Value] = struct{}{}
 	}
@@ -183,13 +192,13 @@ func checkUniqueValues(enum *Enum) error {
 func checkName(name string) (string, error) {
 	
 	if len(name) == 0 {
-		return "", fmt.Errorf("empty name")
+		return "", fmt.Errorf(":: go-enum-generate: [ERROR] empty name")
 	}
 	
 	name = strings.TrimSpace(name)
 	
 	if _, ok := GoKeywords[name]; !GoVarRegex.MatchString(name) || ok {
-		return "", fmt.Errorf("invalid name: %s", name)
+		return "", fmt.Errorf(":: go-enum-generate: [ERROR] invalid name: %s", name)
 	}
 	
 	return name, nil

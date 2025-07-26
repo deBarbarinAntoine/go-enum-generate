@@ -52,7 +52,7 @@ If you prefer to manage the generator's version as a project dependency, add a `
 //go:generate go run github.com/debarbarinantoine/go-enum-generate
 ```
 
-Then, run `go mod tidy` to add the generator as a dependency.
+Then, run `go get github.com/debarbarinantoine/go-enum-generate` to add the generator as a dependency (or add `@latest` at the end of the line).
 
 ### Usage
 
