@@ -27,16 +27,10 @@ read -r APP_VERSION < "$VERSION_FILE"
 
 # --- Build flags for release ---
 # Define LDFLAGS without extra internal quotes, it will be quoted when passed to go build
-LDFLAGS="-s -w -X ${MAIN_PACKAGE}.Version=${APP_VERSION}"
+LDFLAGS="-s -w"
 
 # --- Build ---
 echo "Building ${BINARY_NAME} v${APP_VERSION}..."
-
-echo "--- Debugging LDFLAGS Construction ---"
-echo "APP_VERSION raw value: '${APP_VERSION}'"
-echo "MAIN_PACKAGE raw value: '${MAIN_PACKAGE}'"
-echo "LDFLAGS being passed to go build: '${LDFLAGS}'"
-echo "--- End Debugging ---"
 
 for PLATFORM in "${PLATFORMS[@]}"; do
   GOOS=$(echo "$PLATFORM" | cut -d'/' -f1)

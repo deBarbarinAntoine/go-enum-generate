@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"os"
@@ -8,7 +9,8 @@ import (
 	"github.com/debarbarinantoine/go-enum-generate/internal"
 )
 
-var Version = "dev"
+//go:embed "version"
+var Version string
 
 func main() {
 	
