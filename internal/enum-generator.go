@@ -19,6 +19,7 @@ func (enum *Enum) Generate() error {
 	if err != nil {
 		return err
 	}
+	enum.Name = toPublic(enum.Name)
 	
 	enum.Plural = strings.TrimSpace(enum.Plural)
 	
