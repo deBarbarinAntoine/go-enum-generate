@@ -79,8 +79,8 @@ func GetEnums() ([]Enum, error) {
 	if !existsJSON && !existsYAML {
 		if checkEnumDirFiles() {
 			dirPath = "enum"
-			existsJSON = FileExists(JSONEnumFile)
-			existsYAML = FileExists(YAMLEnumFile)
+			existsJSON = FileExists(filepath.Join("enum", JSONEnumFile))
+			existsYAML = FileExists(filepath.Join("enum", YAMLEnumFile))
 		} else {
 			return nil, fmt.Errorf(":: go-enum-generate: [ERROR] no enum definition file found (enums.json or enums.yaml)")
 		}
