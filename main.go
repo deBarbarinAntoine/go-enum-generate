@@ -8,17 +8,28 @@ import (
 	"github.com/debarbarinantoine/go-enum-generate/internal"
 )
 
+var Version = "dev"
+
 func main() {
 	
 	isOverwrite := flag.Bool("force", false, "Overwrite existing enum files without prompting")
 	flag.BoolVar(isOverwrite, "f", false, "Overwrite existing enum files without prompting")
+	
 	isHelp := flag.Bool("help", false, "Show help")
 	flag.BoolVar(isHelp, "h", false, "Show help")
+	
+	showVersion := flag.Bool("version", false, "Show version information and exit")
+	flag.BoolVar(showVersion, "v", false, "Show version information and exit")
 	
 	flag.Parse()
 	
 	if *isHelp {
 		flag.Usage()
+		os.Exit(0)
+	}
+	
+	if *showVersion { // Handle the new --version flag
+		fmt.Printf("%s v%s\n", os.Args[0], Version) // Print the binary name and the embedded version
 		os.Exit(0)
 	}
 	
