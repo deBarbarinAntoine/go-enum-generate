@@ -1,0 +1,12 @@
+[
+  {
+    "name": "string",
+    "plural": "string optional",
+    "values": [
+      {
+        "key": "string",
+        "value": "string optional"
+      }
+    ]
+  }
+]

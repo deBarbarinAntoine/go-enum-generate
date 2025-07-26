@@ -1,0 +1,42 @@
+# This file defines a list of custom enumerations for your application.
+# Each entry in the list represents a single enumeration.
+
+# Required: The singular name of the enumeration (e.g., "Color")
+- name: Color
+
+  # Optional: The plural name (omit if not needed)
+  # Automatic plural rule: s, sh, x, z, ch or j ending -> add 'es', y ending -> switch 'y' with 'ies', otherwise -> add 's'
+  plural: Colors
+
+  # Required: A list of key-value pairs for the enum members
+  values:
+
+      # Required: The programmatic key (e.g., "RED")
+    - key: RED
+
+      # Required: The associated value (e.g., a hex code, a string description)
+      value: "#FF0000"
+    - key: GREEN
+      value: "#00FF00"
+    - key: BLUE
+      value: "#0000FF"
+
+# Another enumeration example
+- name: Status
+  # plural: (omit if you want the script to generate it automatically)
+  values:
+    - key: ACTIVE
+      value: Running
+    - key: INACTIVE
+      value: Stopped
+    - key: PENDING
+      value: Waiting
+
+- name: Priority
+  values:
+    - key: HIGH
+      value: "3"
+    - key: MEDIUM
+      value: "2"
+    - key: LOW
+      value: "1"

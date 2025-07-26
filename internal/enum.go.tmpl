@@ -1,0 +1,118 @@
+{{ define "enum" -}}
+package enum
+
+import (
+    "fmt"
+    "slices"
+    "strings"
+)
+
+// This file has been created automatically by `go-enum-generate`
+// Do not modify nor edit this file directly.
+// To modify this enum, edit the enums.json or enums.yaml definition file
+
+type {{ .Name }} uint
+
+const (
+{{- $name := .Name -}}
+{{- range $i, $val := .Values -}}
+{{- if eq 0 $i }}
+    {{ toPrivate $val.Key }} {{ $name }} = iota
+{{- else }}
+    {{ toPrivate $val.Key }}
+{{- end -}}
+{{- end }}
+)
+
+func (e {{ .Name }}) String() string {
+    switch e {
+    {{- range .Values }}
+        case {{ toPrivate .Key }}:
+            return "{{ .Value }}"
+    {{- end }}
+        default:
+            return fmt.Sprintf("Unknown {{ .Name }} (%d)", e.Value())
+    }
+}
+
+type {{ .EnumType }} struct {
+{{- range .Values }}
+    {{ .Key }} {{ $name -}}
+{{ end }}
+}
+
+var {{ .EnumVar }} = {{ .EnumType }}{
+{{- range .Values }}
+    {{ .Key }}: {{ toPrivate .Key }},
+{{- end }}
+}
+
+func (e {{ .EnumType }}) Values() []{{ .Name }} {
+    return []{{ .Name }}{
+    {{- range .Values }}
+        {{ toPrivate .Key }},
+    {{- end }}
+    }
+}
+
+func (e *{{ .Name }}) Parse(str string) error {
+
+    str = strings.ToUpper(str)
+
+    switch str {
+    {{- $enumVar := .EnumVar -}}
+    {{- range .Values }}
+        case {{ $enumVar }}.{{ .Key }}.String():
+            *e = {{ $enumVar }}.{{ .Key -}}
+    {{ end }}
+        default:
+            return fmt.Errorf("invalid {{ .Name }}: %s", str)
+    }
+
+    return nil
+}
+
+func (e {{ .Name }}) Value() uint {
+    return uint(e)
+}
+
+func (e {{ .Name }}) MarshalText() ([]byte, error) {
+    return []byte(e.String()), nil
+}
+
+func (e *{{ .Name }}) UnmarshalText(text []byte) error {
+    return e.Parse(string(text))
+}
+
+func (e {{ .Name }}) IsValid() bool {
+    if !slices.Contains({{ .EnumVar }}.Values(), e) {
+        return false
+    }
+    return true
+}
+
+func (e {{ .EnumType }}) Args() []string {
+    var args []string
+
+    for _, enumVal := range e.Values() {
+        args = append(args, enumVal.String())
+    }
+    return args
+}
+
+func (e {{ .EnumType }}) Description() string {
+    var strBuilder strings.Builder
+    strBuilder.WriteString("\tAvailable {{ .EnumVar }}:\n")
+    for _, enumVal := range e.Values() {
+        strBuilder.WriteString(fmt.Sprintf("=> %d -> %s\n", enumVal.Value(), enumVal.String()))
+    }
+    return strBuilder.String()
+}
+
+func (e {{ .EnumType }}) Cast(value uint) ({{ .Name }}, error) {
+    if !slices.Contains(e.Values(), {{ .Name }}(value)) {
+        return 0, fmt.Errorf("invalid cast {{ .Name }}: %d", value)
+    }
+    return {{ .Name }}(value), nil
+}
+{{ end }}
