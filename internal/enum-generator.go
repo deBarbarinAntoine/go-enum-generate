@@ -105,12 +105,12 @@ func checkEnumDirFiles() bool {
 func parseYAML(enums []Enum, dirPath string) ([]Enum, error) {
 	data, err := os.ReadFile(filepath.Join(dirPath, YAMLEnumFile))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(":: go-enum-generate: [ERROR] failed to read enum definition file (%s)", dirPath)
 	}
 	
 	err = yaml.Unmarshal(data, &enums)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(":: go-enum-generate: [ERROR] failed to parse enum definition file (%s)", dirPath)
 	}
 	
 	return enums, nil
@@ -119,12 +119,12 @@ func parseYAML(enums []Enum, dirPath string) ([]Enum, error) {
 func parseJSON(enums []Enum, dirPath string) ([]Enum, error) {
 	data, err := os.ReadFile(filepath.Join(dirPath, JSONEnumFile))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(":: go-enum-generate: [ERROR] failed to read enum definition file (%s)", dirPath)
 	}
 	
 	err = json.Unmarshal(data, &enums)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(":: go-enum-generate: [ERROR] failed to parse enum definition file (%s)", dirPath)
 	}
 	
 	return enums, nil
@@ -142,19 +142,19 @@ func (enum *Enum) CreateEnumFile(isOverwrite bool) error {
 	
 	_, err := tmpl.ParseFS(enumTemplate, enumTemplateFileName)
 	if err != nil {
-		return err
+		return fmt.Errorf(":: go-enum-generate: [ERROR] failed to parse enum template %s: %s", enumTemplateFileName, err)
 	}
 	
 	var buffer bytes.Buffer
 	
 	err = tmpl.ExecuteTemplate(&buffer, enumTemplateName, enum)
 	if err != nil {
-		return err
+		return fmt.Errorf(":: go-enum-create: [ERROR] failed to execute enum template: %v", err)
 	}
 	
 	err = createEnumDir()
 	if err != nil {
-		return err
+		return fmt.Errorf(":: go-enum-generate: [ERROR] failed to create enum directory: %w", err)
 	}
 	
 	outputFile := filepath.Join("enum", toFilename(enum.Name))
@@ -165,7 +165,7 @@ func (enum *Enum) CreateEnumFile(isOverwrite bool) error {
 	
 	err = os.WriteFile(outputFile, buffer.Bytes(), 0644)
 	if err != nil {
-		return err
+		return fmt.Errorf(":: go-enum-generate: [ERROR] failed to write enum file: %w", err)
 	}
 	
 	fmt.Println(fmt.Sprintf(":: go-enum-generate: [INFO] file %s generated successfully", outputFile))

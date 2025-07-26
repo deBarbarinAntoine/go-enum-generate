@@ -30,25 +30,29 @@ func main() {
 		os.Exit(0)
 	}
 	
-	if *showVersion { // Handle the new --version flag
-		fmt.Printf("%s v%s\n", os.Args[0], Version) // Print the binary name and the embedded version
+	if *showVersion {
+		// Print the binary name and the embedded version
+		fmt.Printf("%s v%s\n", os.Args[0], Version)
 		os.Exit(0)
 	}
 	
 	enums, err := internal.GetEnums()
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println(":: go-enum-generate: [ERROR] failed to load enum files")
 		os.Exit(1)
 	}
 	
 	for _, enum := range enums {
 		err = enum.Generate()
 		if err != nil {
+			fmt.Println(err)
 			fmt.Printf(":: go-enum-generate: [ERROR] failed to generate enum %s\n", enum.Name)
 			continue
 		}
 		err = enum.CreateEnumFile(*isOverwrite)
 		if err != nil {
+			fmt.Println(err)
 			fmt.Printf(":: go-enum-generate: [ERROR] failed to writing file for enum %s\n", enum.Name)
 			continue
 		}
