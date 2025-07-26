@@ -53,7 +53,7 @@ func main() {
 		err = enum.CreateEnumFile(*isOverwrite)
 		if err != nil {
 			fmt.Println(err)
-			fmt.Printf(":: go-enum-generate: [ERROR] failed to writing file for enum %s\n", enum.Name)
+			fmt.Printf(":: go-enum-generate: [ERROR] failed to create file for enum %s\n", enum.Name)
 			continue
 		}
 	}
