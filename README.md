@@ -146,7 +146,7 @@ import (
 // DO NOT MODIFY NOR EDIT THIS FILE DIRECTLY.
 // To modify this enum, edit the enums.json or enums.yaml definition file
 // To know more about `go-enum-generate`, see go to `https://github.com/debarbarinantoine/go-enum-generate`
-// Generated at: 2025-07-27 10:31:38
+// Generated at: 2025-07-27 23:19:52
 
 type Color uint
 
@@ -155,6 +155,28 @@ const (
 	green
 	blue
 )
+
+var colorKeys = make(map[Color]struct{}, 3)
+var colorValues = make(map[string]Color, 3)
+var colorKeysArray = make([]Color, 3)
+var colorValuesArray = make([]string, 3)
+
+func init() {
+	colorKeys[red] = struct{}{}
+	colorKeysArray[0] = red
+	colorValues["#FF0000"] = red
+	colorValuesArray[0] = "#FF0000"
+	
+	colorKeys[green] = struct{}{}
+	colorKeysArray[1] = green
+	colorValues["#00FF00"] = green
+	colorValuesArray[1] = "#00FF00"
+	
+	colorKeys[blue] = struct{}{}
+	colorKeysArray[2] = blue
+	colorValues["#0000FF"] = blue
+	colorValuesArray[2] = "#0000FF"
+}
 
 func (e Color) String() string {
 	switch e {
@@ -169,42 +191,15 @@ func (e Color) String() string {
 	}
 }
 
-type colors struct {
-	Red Color
-	Green Color
-	Blue Color
-}
-
-var Colors = colors{
-	Red: red,
-	Green: green,
-	Blue: blue,
-}
-
-func (e colors) Values() []Color {
-	return []Color{
-		red,
-		green,
-		blue,
-	}
-}
-
 func (e *Color) Parse(str string) error {
 	
-	str = strings.ToUpper(str)
+	str = strings.TrimSpace(str)
 	
-	switch str {
-	case Colors.Red.String():
-		*e = Colors.Red
-	case Colors.Green.String():
-		*e = Colors.Green
-	case Colors.Blue.String():
-		*e = Colors.Blue
-	default:
-		return fmt.Errorf("invalid Color: %s", str)
+	if val, ok := colorValues[str]; ok {
+		*e = val
+		return nil
 	}
-	
-	return nil
+	return fmt.Errorf("invalid Color: %s", str)
 }
 
 func (e Color) Value() uint {
@@ -220,19 +215,30 @@ func (e *Color) UnmarshalText(text []byte) error {
 }
 
 func (e Color) IsValid() bool {
-	if !slices.Contains(Colors.Values(), e) {
+	if _, ok := colorKeys[e]; !ok {
 		return false
 	}
 	return true
 }
 
+type colors struct {
+	Red Color
+	Green Color
+	Blue Color
+}
+
+var Colors = colors{
+	Red: red,
+	Green: green,
+	Blue: blue,
+}
+
+func (e colors) Values() []Color {
+	return slices.Clone(colorKeysArray)
+}
+
 func (e colors) Args() []string {
-	var args []string
-	
-	for _, enumVal := range e.Values() {
-		args = append(args, enumVal.String())
-	}
-	return args
+	return slices.Clone(colorValuesArray)
 }
 
 func (e colors) Description() string {
@@ -245,10 +251,227 @@ func (e colors) Description() string {
 }
 
 func (e colors) Cast(value uint) (Color, error) {
-	if !slices.Contains(e.Values(), Color(value)) {
+	if _, ok := colorKeys[Color(value)]; !ok {
 		return 0, fmt.Errorf("invalid cast Color: %d", value)
 	}
 	return Color(value), nil
+}
+```
+
+---
+
+## Performance
+
+This version of the go-enum-generate produces blazing fast enums! 🚀
+
+Using a 50 values long enum, I executed a test code to see how the generated code would perform. The enum used corresponds to the one in `performance-test.yaml` file.
+
+Here are the results on my desktop computer using the code following the results:
+
+```
+2025/07/27 23:38:47 --- Starting Enum Test Program ---
+2025/07/27 23:38:47 Note: Time measurements for single operations (e.g., String()) may be extremely small (nanoseconds).
+2025/07/27 23:38:47 For O(1) operations, multiple iterations are used to get measurable times.
+2025/07/27 23:38:47 Initial Test Enum: #FF0000 (Value: 0)
+2025/07/27 23:38:47 
+--- Testing String() method ---
+2025/07/27 23:38:47 Call: #FF0000.String() => "#FF0000". Took: 150ns
+2025/07/27 23:38:47 
+--- Testing Parse() method (case-sensitive, trimmed) ---
+2025/07/27 23:38:47 Call: Parse("#FF0000") => #FF0000. Took: 401ns
+2025/07/27 23:38:47 Call: Parse(" #FF0000 ") => #FF0000. Took: 361ns
+2025/07/27 23:38:47 Call: Parse("NON_EXISTENT_COLOR") correctly returned error: invalid Color: NON_EXISTENT_COLOR. Took: 702ns
+2025/07/27 23:38:47 Call: Parse("#ff0000" [lowercase]) correctly returned error (case-sensitive): invalid Color: #ff0000. Took: 1.683µs
+2025/07/27 23:38:47 
+--- Testing IsValid() method (O(1) loop) ---
+2025/07/27 23:38:47 Performed 2000000 valid/invalid IsValid() checks. Took: 21.051371ms (Avg per check: 10ns)
+2025/07/27 23:38:47 
+--- Testing Value() method ---
+2025/07/27 23:38:47 Call: #FF0000.Value() => 0. Took: 30ns
+2025/07/27 23:38:47 
+--- Testing MarshalText()/UnmarshalText() methods ---
+2025/07/27 23:38:47 Call: MarshalText(#FF00FF) => "#FF00FF". Took: 130ns
+2025/07/27 23:38:47 Call: UnmarshalText("#FF00FF") => #FF00FF. Took: 972ns
+2025/07/27 23:38:47 
+--- Testing Values() method ---
+2025/07/27 23:38:47 Call: Colors.Values() returned 50 values. Took: 781ns
+2025/07/27 23:38:47 First 5 values: [#FF0000 #00FF00 #0000FF #FFFF00 #00FFFF]
+2025/07/27 23:38:47 
+--- Testing Args() method ---
+2025/07/27 23:38:47 Call: Colors.Args() returned 50 strings. Took: 912ns
+2025/07/27 23:38:47 First 5 args: [#FF0000 #00FF00 #0000FF #FFFF00 #00FFFF]
+2025/07/27 23:38:47 
+--- Testing Description() method ---
+2025/07/27 23:38:47 Call: Colors.Description() generated. Took: 30.187µs
+2025/07/27 23:38:47     Available Colors:
+=> 0 -> #FF0000
+... # [skipping lines here]
+=> 49 -> #DAA520
+
+2025/07/27 23:38:47 
+--- Testing Cast() method (O(1) loop) ---
+2025/07/27 23:38:47 Performed 2000000 valid/invalid Cast() checks. Took: 390.72923ms (Avg per check: 195ns)
+2025/07/27 23:38:47 
+--- All Tests Completed Successfully ---
+```
+
+Here is the code used to test the performance of the code generated with *go-enum-generate* tool:
+
+```go
+package main
+
+import (
+	"log"
+	"strings"
+	"time"
+	
+	"enumTest/enum"
+)
+
+//go:generate go run github.com/debarbarinantoine/go-enum-generate@latest --force
+func main() {
+	log.Println("--- Starting Enum Test Program ---")
+	log.Println("Note: Time measurements for single operations (e.g., String()) may be extremely small (nanoseconds).")
+	log.Println("For O(1) operations, multiple iterations are used to get measurable times.")
+	
+	// --- General Setup ---
+	// Pick a test color from your long list
+	// Make sure this key/value exists in your enums.yaml
+	testColorEnum := enum.Colors.Red // Use one of your generated enum constants
+	testColorValueStr := "#FF0000"   // Use its exact string value from enums.yaml
+	
+	log.Printf("Initial Test Enum: %s (Value: %d)", testColorEnum.String(), testColorEnum.Value())
+	
+	// --- Test String() method ---
+	log.Println("\n--- Testing String() method ---")
+	start := time.Now()
+	strVal := testColorEnum.String()
+	duration := time.Since(start)
+	log.Printf("Call: %s.String() => \"%s\". Took: %s", testColorEnum.String(), strVal, duration)
+	
+	// --- Test Parse() method ---
+	log.Println("\n--- Testing Parse() method (case-sensitive, trimmed) ---")
+	var parsedColor enum.Color
+	
+	// Test valid parse (exact match)
+	start = time.Now()
+	err := parsedColor.Parse(testColorValueStr)
+	duration = time.Since(start)
+	if err != nil {
+		log.Fatalf("ERROR: Parsing \"%s\" failed: %v", testColorValueStr, err)
+	}
+	log.Printf("Call: Parse(\"%s\") => %s. Took: %s", testColorValueStr, parsedColor.String(), duration)
+	
+	// Test valid parse with whitespace (should work due to TrimSpace)
+	start = time.Now()
+	err = parsedColor.Parse(" " + testColorValueStr + " ")
+	duration = time.Since(start)
+	if err != nil {
+		log.Fatalf("ERROR: Parsing with spaces \"%s\" failed: %v", " "+testColorValueStr+" ", err)
+	}
+	log.Printf("Call: Parse(\" %s \") => %s. Took: %s", testColorValueStr, parsedColor.String(), duration)
+	
+	// Test invalid parse (non-existent string)
+	start = time.Now()
+	err = parsedColor.Parse("NON_EXISTENT_COLOR")
+	duration = time.Since(start)
+	if err != nil {
+		log.Printf("Call: Parse(\"NON_EXISTENT_COLOR\") correctly returned error: %v. Took: %s", err, duration)
+	} else {
+		log.Fatalf("ERROR: Parse(\"NON_EXISTENT_COLOR\") unexpectedly succeeded.")
+	}
+	
+	// Test invalid parse (incorrect case - should fail as Parse is case-sensitive)
+	start = time.Now()
+	err = parsedColor.Parse(strings.ToLower(testColorValueStr)) // Assuming testColorValueStr is not already lowercase
+	duration = time.Since(start)
+	if err != nil {
+		log.Printf("Call: Parse(\"%s\" [lowercase]) correctly returned error (case-sensitive): %v. Took: %s", strings.ToLower(testColorValueStr), err, duration)
+	} else {
+		log.Fatalf("ERROR: Parse(\"%s\" [lowercase]) unexpectedly succeeded (case-sensitive issue).", strings.ToLower(testColorValueStr))
+	}
+	
+	// --- Test IsValid() method (Loop for performance) ---
+	log.Println("\n--- Testing IsValid() method (O(1) loop) ---")
+	numIterations := 1000000 // One Million iterations to get measurable time
+	start = time.Now()
+	for i := 0; i < numIterations; i++ {
+		_ = enum.Colors.Blue.IsValid()  // Valid check
+		_ = enum.Color(99999).IsValid() // Invalid check (use a value well outside your defined range)
+	}
+	duration = time.Since(start)
+	log.Printf("Performed %d valid/invalid IsValid() checks. Took: %s (Avg per check: %s)",
+		numIterations*2, duration, duration/time.Duration(numIterations*2))
+	
+	// --- Test Value() method ---
+	log.Println("\n--- Testing Value() method ---")
+	start = time.Now()
+	valUint := testColorEnum.Value()
+	duration = time.Since(start)
+	log.Printf("Call: %s.Value() => %d. Took: %s", testColorEnum.String(), valUint, duration)
+	
+	// --- Test MarshalText() / UnmarshalText() methods ---
+	log.Println("\n--- Testing MarshalText()/UnmarshalText() methods ---")
+	initialForMarshal := enum.Colors.Magenta // Pick another color
+	
+	start = time.Now()
+	marshaled, err := initialForMarshal.MarshalText()
+	durationMarshal := time.Since(start)
+	if err != nil {
+		log.Fatalf("ERROR: Marshaling %s failed: %v", initialForMarshal.String(), err)
+	}
+	log.Printf("Call: MarshalText(%s) => \"%s\". Took: %s", initialForMarshal.String(), string(marshaled), durationMarshal)
+	
+	var unmarshaled enum.Color
+	start = time.Now()
+	err = unmarshaled.UnmarshalText(marshaled)
+	durationUnmarshal := time.Since(start)
+	if err != nil {
+		log.Fatalf("ERROR: Unmarshaling \"%s\" failed: %v", string(marshaled), err)
+	}
+	log.Printf("Call: UnmarshalText(\"%s\") => %s. Took: %s", string(marshaled), unmarshaled.String(), durationUnmarshal)
+	
+	// --- Test Values() method ---
+	log.Println("\n--- Testing Values() method ---")
+	start = time.Now()
+	allColors := enum.Colors.Values() // Access the global enum var
+	duration = time.Since(start)
+	log.Printf("Call: Colors.Values() returned %d values. Took: %s", len(allColors), duration)
+	log.Printf("First 5 values: %v", allColors[:min(5, len(allColors))])
+	
+	// --- Test Args() method ---
+	log.Println("\n--- Testing Args() method ---")
+	start = time.Now()
+	args := enum.Colors.Args() // Access the global enum var
+	duration = time.Since(start)
+	log.Printf("Call: Colors.Args() returned %d strings. Took: %s", len(args), duration)
+	log.Printf("First 5 args: %v", args[:min(5, len(args))])
+	
+	// --- Test Description() method ---
+	log.Println("\n--- Testing Description() method ---")
+	start = time.Now()
+	desc := enum.Colors.Description() // Access the global enum var
+	duration = time.Since(start)
+	log.Printf("Call: Colors.Description() generated. Took: %s", duration)
+	// You can print the full description if you want to see it:
+	log.Println(desc)
+	
+	// --- Test Cast() method (Loop for performance) ---
+	log.Println("\n--- Testing Cast() method (O(1) loop) ---")
+	numIterations = 1000000                   // One Million iterations
+	validUintToCast := uint(enum.Colors.Blue) // A valid uint value
+	invalidUintToCast := uint(99999)          // An invalid uint value
+	
+	start = time.Now()
+	for i := 0; i < numIterations; i++ {
+		_, _ = enum.Colors.Cast(validUintToCast)   // Valid cast
+		_, _ = enum.Colors.Cast(invalidUintToCast) // Invalid cast
+	}
+	duration = time.Since(start)
+	log.Printf("Performed %d valid/invalid Cast() checks. Took: %s (Avg per check: %s)",
+		numIterations*2, duration, duration/time.Duration(numIterations*2))
+	
+	log.Println("\n--- All Tests Completed Successfully ---")
 }
 ```
 

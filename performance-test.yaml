@@ -1,0 +1,102 @@
+- name: color
+  values:
+    - key: red
+      value: "#FF0000"
+    - key: green
+      value: "#00FF00"
+    - key: blue
+      value: "#0000FF"
+    - key: yellow
+      value: "#FFFF00"
+    - key: cyan
+      value: "#00FFFF"
+    - key: magenta
+      value: "#FF00FF"
+    - key: black
+      value: "#000000"
+    - key: white
+      value: "#FFFFFF"
+    - key: gray
+      value: "#808080"
+    - key: silver
+      value: "#C0C0C0"
+    - key: maroon
+      value: "#800000"
+    - key: olive
+      value: "#808000"
+    - key: purple
+      value: "#800080"
+    - key: teal
+      value: "#008080"
+    - key: navy
+      value: "#000080"
+    - key: orange
+      value: "#FFA500"
+    - key: pink
+      value: "#FFC0CB"
+    - key: brown
+      value: "#A52A2A"
+    - key: gold
+      value: "#FFD700"
+    - key: violet
+      value: "#EE82EE"
+    - key: indigo
+      value: "#4B0082"
+    - key: crimson
+      value: "#DC143C"
+    - key: chartreuse
+      value: "#7FFF00"
+    - key: coral
+      value: "#FF7F50"
+    - key: lavender
+      value: "#E6E6FA"
+    - key: turquoise
+      value: "#40E0D0"
+    - key: beige
+      value: "#F5F5DC"
+    - key: mint
+      value: "#3EB489"
+    - key: salmon
+      value: "#FA8072"
+    - key: plum
+      value: "#DDA0DD"
+    - key: skyblue
+      value: "#87CEEB"
+    - key: forestgreen
+      value: "#228B22"
+    - key: darkslategray
+      value: "#2F4F4F"
+    - key: lightcoral
+      value: "#F08080"
+    - key: moccasin
+      value: "#FFE4B5"
+    - key: rebeccapurple
+      value: "#663399"
+    - key: cornflowerblue
+      value: "#6495ED"
+    - key: burlywood
+      value: "#DEB887"
+    - key: darkkhaki
+      value: "#BDB76B"
+    - key: mediumorchid
+      value: "#BA55D3"
+    - key: rosiebrown
+      value: "#BC8F8F"
+    - key: seagreen
+      value: "#2E8B57"
+    - key: sienna
+      value: "#A0522D"
+    - key: springgreen
+      value: "#00FF7F"
+    - key: thistle
+      value: "#D8BFD8"
+    - key: wheat
+      value: "#F5DEB3"
+    - key: whitesmoke
+      value: "#F5F5F5"
+    - key: aquamarine
+      value: "#7FFFD4"
+    - key: chocolate
+      value: "#D2691E"
+    - key: goldenrod
+      value: "#DAA520"
