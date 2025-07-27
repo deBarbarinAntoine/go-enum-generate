@@ -59,6 +59,8 @@ func (enum *Enum) Generate() error {
 			return err
 		}
 		
+		enum.Values[i].Key = toPublic(values.Key)
+		
 		if values.Value == "" {
 			enum.Values[i].Value = strings.ToUpper(values.Key)
 		}
