@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 	"unicode"
 )
 
@@ -16,6 +17,7 @@ const (
 
 var functions = template.FuncMap{
 	"toPrivate": toPrivate,
+	"humanDate": humanDate,
 }
 
 var GoKeywords = initGoKeywords()
@@ -33,6 +35,10 @@ func initGoKeywords() map[string]struct{} {
 	}
 	
 	return keywordsMap
+}
+
+func humanDate(t time.Time) string {
+	return t.Format(time.DateTime)
 }
 
 func toPrivate(s string) string {

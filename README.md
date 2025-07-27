@@ -143,8 +143,10 @@ import (
 )
 
 // This file has been created automatically by `go-enum-generate`
-// Do not modify nor edit this file directly.
+// DO NOT MODIFY NOR EDIT THIS FILE DIRECTLY.
 // To modify this enum, edit the enums.json or enums.yaml definition file
+// To know more about `go-enum-generate`, see go to `https://github.com/debarbarinantoine/go-enum-generate`
+// Generated at: 2025-07-27 10:31:38
 
 type Color uint
 
@@ -168,15 +170,15 @@ func (e Color) String() string {
 }
 
 type colors struct {
-	red Color
-	green Color
-	blue Color
+	Red Color
+	Green Color
+	Blue Color
 }
 
 var Colors = colors{
-	red: red,
-	green: green,
-	blue: blue,
+	Red: red,
+	Green: green,
+	Blue: blue,
 }
 
 func (e colors) Values() []Color {
@@ -192,12 +194,12 @@ func (e *Color) Parse(str string) error {
 	str = strings.ToUpper(str)
 	
 	switch str {
-	case Colors.red.String():
-		*e = Colors.red
-	case Colors.green.String():
-		*e = Colors.green
-	case Colors.blue.String():
-		*e = Colors.blue
+	case Colors.Red.String():
+		*e = Colors.Red
+	case Colors.Green.String():
+		*e = Colors.Green
+	case Colors.Blue.String():
+		*e = Colors.Blue
 	default:
 		return fmt.Errorf("invalid Color: %s", str)
 	}

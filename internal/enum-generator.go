@@ -8,12 +8,15 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 	
 	"github.com/goccy/go-yaml"
 )
 
 func (enum *Enum) Generate() error {
 	var err error
+	
+	enum.Date = time.Now()
 	
 	enum.Name, err = checkName(enum.Name)
 	if err != nil {
