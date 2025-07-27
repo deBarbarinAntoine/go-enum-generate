@@ -26,6 +26,20 @@ const (
 {{- end }}
 )
 
+var {{ toPrivate .Name }}Keys = make(map[{{ .Name }}]struct{}, {{ len .Values }})
+var {{ toPrivate .Name }}Values = make(map[string]{{ .Name }}, {{ len .Values }})
+var {{ toPrivate .Name }}KeysArray = make([]{{ .Name }}, {{ len .Values }})
+var {{ toPrivate .Name }}ValuesArray = make([]string, {{ len .Values }})
+
+func init() {
+{{- range $i, $value := .Values }}
+    {{ toPrivate $name }}Keys[{{ toPrivate $value.Key }}] = struct{}{}
+    {{ toPrivate $name }}KeysArray[{{ $i }}] = {{ toPrivate $value.Key }}
+    {{ toPrivate $name }}Values["{{ $value.Value }}"] = {{ toPrivate $value.Key }}
+    {{ toPrivate $name }}ValuesArray[{{ $i }}] = "{{ $value.Value }}"
+{{ end -}}
+}
+
 func (e {{ .Name }}) String() string {
     switch e {
     {{- range .Values }}
@@ -37,41 +51,15 @@ func (e {{ .Name }}) String() string {
     }
 }
 
-type {{ .EnumType }} struct {
-{{- range .Values }}
-    {{ .Key }} {{ $name -}}
-{{ end }}
-}
-
-var {{ .EnumVar }} = {{ .EnumType }}{
-{{- range .Values }}
-    {{ .Key }}: {{ toPrivate .Key }},
-{{- end }}
-}
-
-func (e {{ .EnumType }}) Values() []{{ .Name }} {
-    return []{{ .Name }}{
-    {{- range .Values }}
-        {{ toPrivate .Key }},
-    {{- end }}
-    }
-}
-
 func (e *{{ .Name }}) Parse(str string) error {
 
-    str = strings.ToUpper(str)
+    str = strings.TrimSpace(str)
 
-    switch str {
-    {{- $enumVar := .EnumVar -}}
-    {{- range .Values }}
-        case {{ $enumVar }}.{{ .Key }}.String():
-            *e = {{ $enumVar }}.{{ .Key -}}
-    {{ end }}
-        default:
-            return fmt.Errorf("invalid {{ .Name }}: %s", str)
+    if val, ok := {{ toPrivate .Name }}Values[str]; ok {
+        *e = val
+        return nil
     }
-
-    return nil
+    return fmt.Errorf("invalid {{ .Name }}: %s", str)
 }
 
 func (e {{ .Name }}) Value() uint {
@@ -87,19 +75,30 @@ func (e *{{ .Name }}) UnmarshalText(text []byte) error {
 }
 
 func (e {{ .Name }}) IsValid() bool {
-    if !slices.Contains({{ .EnumVar }}.Values(), e) {
+    if _, ok := {{ toPrivate .Name }}Keys[e]; !ok {
         return false
     }
     return true
 }
 
-func (e {{ .EnumType }}) Args() []string {
-    var args []string
+type {{ .EnumType }} struct {
+{{- range .Values }}
+    {{ .Key }} {{ $name -}}
+{{ end }}
+}
 
-    for _, enumVal := range e.Values() {
-        args = append(args, enumVal.String())
-    }
-    return args
+var {{ .EnumVar }} = {{ .EnumType }}{
+{{- range .Values }}
+    {{ .Key }}: {{ toPrivate .Key }},
+{{- end }}
+}
+
+func (e {{ .EnumType }}) Values() []{{ .Name }} {
+    return slices.Clone({{ toPrivate .Name }}KeysArray)
+}
+
+func (e {{ .EnumType }}) Args() []string {
+    return slices.Clone({{ toPrivate .Name }}ValuesArray)
 }
 
 func (e {{ .EnumType }}) Description() string {
@@ -112,7 +111,7 @@ func (e {{ .EnumType }}) Description() string {
 }
 
 func (e {{ .EnumType }}) Cast(value uint) ({{ .Name }}, error) {
-    if !slices.Contains(e.Values(), {{ .Name }}(value)) {
+    if _, ok := {{ toPrivate .Name }}Keys[{{ .Name }}(value)]; !ok {
         return 0, fmt.Errorf("invalid cast {{ .Name }}: %d", value)
     }
     return {{ .Name }}(value), nil
